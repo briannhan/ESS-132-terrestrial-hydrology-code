@@ -4,21 +4,23 @@ Created on Mon Oct  5 17:59:39 2020
 
 @author: Brian Chung
 """
-
+# %%
 import pandas as pd
 import matplotlib.pyplot as py
 
+pd.set_option("max_columns", None)
+# %%
 hypsometricData = pd.read_excel("Week 1 - Hypsometric curve data.xlsx")
 
 areaInAltRange = hypsometricData["Area within altitude range (km2)"]
 cumulAreaInAltRange = hypsometricData["Cumulative area above lower altitude (km2)"]
-
+print(hypsometricData.head())
 
 for index, value in areaInAltRange.iteritems():
     areaValues = areaInAltRange.iloc[:index + 1]
     cumulArea = areaValues.sum()
     cumulAreaInAltRange.iloc[index] = cumulArea
-    
+
 
 hypsometricData["Cumulative area above lower altitude (km2)"] = cumulAreaInAltRange
 
@@ -29,7 +31,7 @@ hypsometricData["Proportion of cumulative area above lower altitude (%)"] = 100*
 cumulAreaInAltRange = cumulAreaInAltRange.to_numpy()
 proportionCumulArea = hypsometricData["Proportion of cumulative area above lower altitude (%)"].to_numpy()
 lowerAltitude = hypsometricData["Lower altitude (m)"].to_numpy()
-
+# %%
 hypsometricCurves = py.figure(figsize = (12, 15))
 areaPlot = hypsometricCurves.add_subplot(2, 1, 1)
 proportionPlot = hypsometricCurves.add_subplot(2, 1, 2)
