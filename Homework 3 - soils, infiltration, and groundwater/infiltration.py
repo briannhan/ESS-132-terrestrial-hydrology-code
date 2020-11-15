@@ -32,9 +32,10 @@ def infilCapaHorton(f0, fc, k, t):
     return ft
 
 
-def totalInfilHorton(f0, fc, k, t):
-    """Calculates the total amount that had infiltrated using an integrated
-    version of the Horton equation
+def totalInfilHorton1time(f0, fc, k, t):
+    """Assuming that the actual infiltration rate is the infiltration capacity,
+    this calculates the maximum amount of water that can infiltrate after a
+    given amount of time using an integrated version of the Horton equation
 
     Parameters
     ----------
@@ -49,6 +50,28 @@ def totalInfilHorton(f0, fc, k, t):
     """
     numerator = (f0 - fc)*(1 - np.exp(-k*t))
     Ft = (fc*t) + (numerator/k)
+    return Ft
+
+
+def totalInfilHorton2time(f0, fc, k, t1, t2):
+    """Assuming that the actual infiltration rate is the infiltration capacity,
+    this calculates the maximum amount of water that can infiltrate between
+    2 time periods by taking the definite integral of the Horton equation
+    between times t1 & t2.
+    Parameters
+    ----------
+    f0 = initial infiltration capacity (length/time)
+    fc = infiltration capacity after soil becomes saturated (length/time)
+    t1 = initial time (hours, minutes, seconds)
+    t2 = final time (hours, minutes, seconds)
+    k = decay constant specific to the soil (estimated), (hr^-1)
+
+    Returns
+    -------
+    Ft = total amount of infiltration between times t1 & t2 (length)
+    """
+    fraction = (f0 - fc)/(-k)
+    Ft = (fc*t2) - (fc*t1) + (fraction*(np.exp(-k*t2) - np.exp(-k*t1)))
     return Ft
 # %%
 # Calculates infiltration rates using the Green-Ampt model
