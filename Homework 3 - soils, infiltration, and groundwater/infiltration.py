@@ -117,10 +117,10 @@ def timep(Fp, rainfallRate):
     return timep
 
 
-def infilRateGA(rainfallRate, Ks, presHead, thetaSat, thetaInit, F, t, tp):
+def infilRateGA(Ks, presHead, thetaSat, thetaInit, F, tp):
     """Calculates the infiltration rate in the Green-Ampt model. The
-    infiltration rate is calculated 2 different ways: before ponding and
-    after ponding
+    infiltration rate is calculated AFTER ponding occurs. The infiltration rate
+    when t <= tp is the rainfall rate.
 
     Parameters
     -----------
@@ -130,7 +130,6 @@ def infilRateGA(rainfallRate, Ks, presHead, thetaSat, thetaInit, F, t, tp):
     (length/time)
     thetaSat = saturated water content
     thetaInit = initial water content
-    t = a point in time (hours, minutes, seconds)
     F = total amount infiltrated at time t (length)
     tp = amount of time before ponding takes place (hour, minutes, seconds)
 
@@ -138,19 +137,16 @@ def infilRateGA(rainfallRate, Ks, presHead, thetaSat, thetaInit, F, t, tp):
     -------
     f = infiltration rate after a given amount F had infiltrated (length/time)
     """
-    if t <= tp:
-        f = rainfallRate
-    elif t > tp:
-        numerator = Ks*np.absolute(presHead)*(thetaSat - thetaInit)
-        fraction = numerator/F
-        f = Ks + fraction
+    numerator = Ks*np.absolute(presHead)*(thetaSat - thetaInit)
+    fraction = numerator/F
+    f = Ks + fraction
 
     return f
 
 
 def time(tp, Ks, F, Fp, presHead, thetaSat, thetaInit):
     """Calculates the amount of time it takes for a given amount F to have
-    infiltrated if the amount that had infiltrated is greated than the amount
+    infiltrated if the amount that had infiltrated is GREATER than the amount
     that infiltrated before ponding takes place
 
     Parameters
@@ -168,18 +164,14 @@ def time(tp, Ks, F, Fp, presHead, thetaSat, thetaInit):
     -------
     time = amount of time it takes for the amount F to have infiltrated
     (hours, minutes, seconds)"""
-    if F > Fp:
-        numeratorLN = Fp + np.absolute(presHead)*(thetaSat - thetaInit)
-        denomLN = F + np.absolute(presHead)*(thetaSat - thetaInit)
-        naturalLog = np.log(numeratorLN/denomLN)
 
-        product1 = np.absolute(presHead)*(thetaSat - thetaInit)*naturalLog
-        brackets = F - Fp + product1
+    numeratorLN = Fp + np.absolute(presHead)*(thetaSat - thetaInit)
+    denomLN = F + np.absolute(presHead)*(thetaSat - thetaInit)
+    naturalLog = np.log(numeratorLN/denomLN)
 
-        product2 = (1/Ks)*brackets
-        time = tp + product2
-        return time
+    product1 = np.absolute(presHead)*(thetaSat - thetaInit)*naturalLog
+    brackets = F - Fp + product1
 
-    else:
-        print("F is equal to or less than Fp, can't use this function")
-        return
+    product2 = (1/Ks)*brackets
+    time = tp + product2
+    return time
