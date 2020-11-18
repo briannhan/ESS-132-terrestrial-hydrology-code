@@ -175,3 +175,45 @@ def time(tp, Ks, F, Fp, presHead, thetaSat, thetaInit):
     product2 = (1/Ks)*brackets
     time = tp + product2
     return time
+
+
+def stormEnd(tp, Ks, F, Fp, presHead, thetaSat, thetaInit, endingTime):
+    """This function is intended to be used to find the total amount of
+    infiltration by the end of a storm. The function is intended to be called
+    once by another function (function x) in the script that uses this function
+    and function x will then undergo the root finding algorithms of scipy.
+    Function x will take only 1 argument: the mathematical root of the
+    function, which is the total amount infiltrated by the end of the storm.
+    Function stormEnd(), which is this function, will have the same form
+    as function time(), but it will subtract the ending time while time()
+    does not. The purpose of this subtraction is to ensure the total amount
+    infiltrated by the end of the storm truly occurs by the end of the stormf
+    and to also ensures that the returned value, when properly optimized, is 0
+
+    Parameters
+    ----------
+    tp = amount of time before ponding takes place (hour, minutes, seconds)
+    presHead = pressure head, can be obtained by soil texture (length)
+    Ks = saturated hydraulic conductivity, can be obtained by soil texture,
+    (length/time)
+    F = total amount infiltrated at the specified time (length)
+    Fp = total amount of water infiltrated by the time ponding started (length)
+    thetaSat = saturated water content
+    thetaInit = initial water content
+    endingTime = the time when the storm ends; storm duration (units of time)
+
+    Returns
+    -------
+    time = amount of 'time' it takes for the amount F to have infiltrated,
+    should be 0 if properly optimized (hours, minutes, seconds)"""
+
+    numeratorLN = Fp + np.absolute(presHead)*(thetaSat - thetaInit)
+    denomLN = F + np.absolute(presHead)*(thetaSat - thetaInit)
+    naturalLog = np.log(numeratorLN/denomLN)
+
+    product1 = np.absolute(presHead)*(thetaSat - thetaInit)*naturalLog
+    brackets = F - Fp + product1
+
+    product2 = (1/Ks)*brackets
+    time = tp + product2 - endingTime
+    return time

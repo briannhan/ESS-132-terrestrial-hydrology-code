@@ -9,6 +9,7 @@ Contains my work for Homework 3
 import numpy as np
 import infiltration as infil
 import matplotlib.pyplot as py
+from scipy import optimize as op
 # %%
 # Question 1: characterizing soils
 
@@ -92,14 +93,33 @@ pondingTime = infil.timep(Fp, rainfallRate)
 # b) Solving for: total amount of rainfall, total amount infiltrated by the end
 # of the storm, total amount of runoff, infiltration rates at the beginning and
 # end of the storm
-
 totalRain = rainfallRate*rainDuration
-finalF = 1.4
-timeEnd = infil.time(pondingTime, Ksat, finalF,
-                     Fp, presHead, thetaSat, thetaInit)
-runoffHeight = totalRain - finalF
 
-initInfilRate = rainfallRate
+
+def stormEndOptimize(totalInfiltration):
+    """This function calls the infiltration.stormEnd() method and will be fed
+    into the root-finding algorithms to solve for roots (the total amount
+    infiltrated by the end of the storm)
+
+    Parameters
+    ----------
+    totalInfiltration = the total amount infiltrated BY THE END OF THE STORM;
+    the root of the function to be solved for (length)
+
+    Returns
+    -------
+    time = the 'time' when the total amount infiltrated is totalInfiltration;
+    should be 0 if properly optimized (hours, minutes, seconds)
+    """
+    time = infil.stormEnd(pondingTime, Ksat, totalInfiltration, Fp, presHead,
+                          thetaSat, thetaInit, rainDuration)
+    return time
+
+
+rootResults = op.root(stormEndOptimize, 1.4)
+# rootResults.x is a numpy array of size 1 so I coerced it into a float
+finalF = float(rootResults.x)
+runoffHeight = totalRain - finalF
 finalInfilRate = infil.infilRateGA(Ksat, presHead, thetaSat,
                                    thetaInit, finalF, pondingTime)
 
@@ -108,7 +128,7 @@ finalInfilRate = infil.infilRateGA(Ksat, presHead, thetaSat,
 # amount infiltrated is equal to finalF.
 # I define the "critical point" as the point when the infiltration capacity
 # equals the rainfall rate
-initFp = Fp + 0.0001
+initFp = Fp + (1e-8)
 FafterCrit = np.linspace(initFp, finalF)
 timeAfterCrit = infil.time(pondingTime, Ksat, FafterCrit,
                            Fp, presHead, thetaSat, thetaInit)
