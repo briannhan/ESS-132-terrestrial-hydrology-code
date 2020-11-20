@@ -53,7 +53,8 @@ stormDuration = 4
 
 # I define the "critical point" as the time when infiltration rate equals
 # rainfall rate. Now I'm working on b) v.
-timeCrit = np.log((2 - fc)/(f0 - fc))/(-k)
+timeValueList = infil.kOrt(f0, fc, rainfallRate, k, "t")
+timeCrit = timeValueList[1]
 maxInfilCrit = infil.totalInfilHorton1time(f0, fc, k, timeCrit)
 actualInfilVolumeCrit = rainfallRate*timeCrit
 

@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-The purpose of this script is to perform calculations of the infiltration
+The purpose of this module is to perform calculations of the infiltration
 of water into soil using the Horton equations (empirical) and the
-Green-Ampt model (somewhat theoretical but simplified)
+Green-Ampt model (somewhat theoretical but simplified). This module can be
+imported by other scripts, which would then use the methods within this module
 """
 
 
@@ -58,6 +59,7 @@ def totalInfilHorton2time(f0, fc, k, t1, t2):
     this calculates the maximum amount of water that can infiltrate between
     2 time periods by taking the definite integral of the Horton equation
     between times t1 & t2.
+
     Parameters
     ----------
     f0 = initial infiltration capacity (length/time)
@@ -73,6 +75,39 @@ def totalInfilHorton2time(f0, fc, k, t1, t2):
     fraction = (f0 - fc)/(-k)
     Ft = (fc*t2) - (fc*t1) + (fraction*(np.exp(-k*t2) - np.exp(-k*t1)))
     return Ft
+
+
+def kOrt(f0, fc, f, knownValue, unknownVar):
+    """Intended to be used for calculations involving the Horton equation. This
+    calculates the value of the decay rate constant (k) if knownValue is time
+    (t) and if knownValue is the decay rate constant (k), then it calculates
+    the time (t)
+
+    Parameters
+    ----------
+    f0 = initial infiltration capacity (length/time)
+    fc = infiltration capacity after soil becomes saturated (length/time)
+    f0 = infiltration capacity at a specific time t (length/time)
+    knownValue = either k or t; if it's k, then units are time^-1 and this
+    function returns time t, and if it's t, then the units are units of time
+    and this function returns the decay rate constant
+    unknownVar = a character (k or t) that signifies the variable that the user
+    wants this function to return
+
+    Returns
+    -------
+    list of the following 2 items:
+    variable = string that describes the variable that this function calculates
+    unknownValue = the value of the variable that this function calculates; if
+    knownValue is k, then this variable is t with units of time, and if
+    knownValue is t, then this variable is k with units of time^-1
+    """
+    unknownValue = np.log((f - fc)/(f0 - fc))/(-knownValue)
+    if "k" in unknownVar.lower():
+        variable = "decay rate constant"
+    elif "t" in unknownVar.lower():
+        variable = "time"
+    return [variable, unknownValue]
 # %%
 # Calculates infiltration rates using the Green-Ampt model
 
