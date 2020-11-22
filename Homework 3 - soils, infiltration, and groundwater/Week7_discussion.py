@@ -2,13 +2,13 @@
 """
 Created on Wed Nov 18 10:06:39 2020
 
-@author: LMAOXD
+@author: Brian Chung
+Contains my work for the week 7 discussion section
 """
 
 import infiltration as infil
 import scipy.optimize as opti
 import matplotlib.pyplot as py
-import numpy as np
 
 # Units of time are in hours
 stormDuration = 3
@@ -43,20 +43,11 @@ infilAfterPonding = endingInfiltrationTotal - Fp
 totalRain = precipRate*stormDuration
 runOff = totalRain - endingInfiltrationTotal
 
-# Making numpy 1-D arrays to graph
-initInfilRateArray = np.full(50, precipRate)
-initTimeArray = np.linspace(0, pondingTime)
-infilArrayAfterPonding = np.linspace(Fp + (1e-8), endingInfiltrationTotal)
-infilRateAfterPondingArray = infil.infilRateGA(Ksat, presHead, satContent,
-                                               initContent,
-                                               infilArrayAfterPonding,
-                                               pondingTime)
-timeAfterPondingArray = infil.time(pondingTime, Ksat, infilArrayAfterPonding,
-                                   Fp, presHead, satContent, initContent)
+# Making numpy 2-D arrays to graph infiltration rates vs time
+plotValues = infil.graphData(endingInfiltrationTotal, precipRate, Ksat,
+                             presHead, satContent, initContent)
 
-timeArray = np.concatenate((initTimeArray, timeAfterPondingArray))
-infilRateArray = np.concatenate((initInfilRateArray,
-                                 infilRateAfterPondingArray))
+# Making the infiltration rate vs time plot
 greenAmptFigure = py.figure(num=1, figsize=(8, 4))
 greenAmptSubplot = greenAmptFigure.add_subplot(1, 1, 1)
 figureTitle = "Infiltration rate, Green-Ampt model, week 7 discussion"
@@ -65,5 +56,5 @@ figureYaxis = "Infiltration rate (cm/hr)"
 greenAmptSubplot.set_title(figureTitle)
 greenAmptSubplot.set_xlabel(figureXaxis)
 greenAmptSubplot.set_ylabel(figureYaxis)
-greenAmptSubplot.plot(timeArray, infilRateArray)
+greenAmptSubplot.plot(plotValues[0, :], plotValues[1, :])
 greenAmptFigure.savefig("Week 7 discussion infiltration rate plot.jpg")

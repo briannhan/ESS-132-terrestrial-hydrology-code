@@ -252,3 +252,44 @@ def stormEnd(tp, Ks, F, Fp, presHead, thetaSat, thetaInit, endingTime):
     product2 = (1/Ks)*brackets
     time = tp + product2 - endingTime
     return time
+
+
+def graphData(finalF, rainfallRate, Ksat, presHead, thetaSat, thetaInit):
+    """Returns a numpy 2-D array that will be used to make a plot of
+    infiltration rates over time according to the Green-Ampt model
+
+    Parameters
+    ----------
+    finalF = total amount infiltrated by the time the storm ended (length)
+    rainfallRate = self-explanatory; the rainfall rate of a storm (length/time)
+    Ksat = saturated hydraulic conductivity of a specific soil
+    presHead = pressure head at wetting front, same as the variable used in
+    other Green-Ampt model functions (length)
+    thetaSat = saturated water content
+    thetaInit = initial water content
+
+    Returns
+    -------
+    A 2-D numpy array in which the first row is time and the second row
+    contains infiltration rates at those times
+    """
+    Fp = Fpond(presHead, Ksat, thetaSat, thetaInit, rainfallRate)
+    pondingTime = timep(Fp, rainfallRate)
+    # making arrays of values before ponding
+    timeArrayBeforePond = np.linspace(0, pondingTime)
+    infilRateArrayBeforePond = np.full(50, rainfallRate)
+
+    # making arrays of values after ponding
+    initFp = Fp + (1e-8)
+    infilAmountAfterPond = np.linspace(initFp, finalF)
+    timeArrayAfterPond = time(pondingTime, Ksat, infilAmountAfterPond, Fp,
+                              presHead, thetaSat, thetaInit)
+    infilRateArrayAfterPond = infilRateGA(Ksat, presHead, thetaSat, thetaInit,
+                                          infilAmountAfterPond, pondingTime)
+
+    # combining arrays of values
+    timeArray = np.concatenate((timeArrayBeforePond, timeArrayAfterPond))
+    infilRateArray = np.concatenate((infilRateArrayBeforePond,
+                                     infilRateArrayAfterPond))
+    results = np.stack((timeArray, infilRateArray), axis=0)
+    return results

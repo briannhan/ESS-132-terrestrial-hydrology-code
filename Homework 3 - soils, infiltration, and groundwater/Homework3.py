@@ -6,7 +6,6 @@ Created on Sun Nov 15 01:41:49 2020
 Contains my work for Homework 3
 """
 
-import numpy as np
 import infiltration as infil
 import matplotlib.pyplot as py
 from scipy import optimize as op
@@ -124,27 +123,11 @@ runoffHeight = totalRain - finalF
 finalInfilRate = infil.infilRateGA(Ksat, presHead, thetaSat,
                                    thetaInit, finalF, pondingTime)
 
-# Making numpy 1-D arrays of values of F between finalF (inclusive) & Fp
-# (not inclusive) and the time between the "critical point" and when the total
-# amount infiltrated is equal to finalF.
+# Making a numpy 2-D array of values to plot infiltration rate vs time
 # I define the "critical point" as the point when the infiltration capacity
 # equals the rainfall rate
-initFp = Fp + (1e-8)
-FafterCrit = np.linspace(initFp, finalF)
-timeAfterCrit = infil.time(pondingTime, Ksat, FafterCrit,
-                           Fp, presHead, thetaSat, thetaInit)
-infilRateAfterCrit = infil.infilRateGA(Ksat, presHead, thetaSat,
-                                       thetaInit, FafterCrit, pondingTime)
-
-# Making a numpy 1-D array of values of time since the rain storm started and
-# up to the critical point and a numpy 1-D array of the infiltration rate
-# prior to the critical point
-timeBeforeCrit = np.linspace(0, pondingTime)
-infilRateBeforeCrit = np.full(50, rainfallRate)
-
-# combining arrays of values before and after the critical point
-timeArray = np.concatenate((timeBeforeCrit, timeAfterCrit))
-infilRateArray = np.concatenate((infilRateBeforeCrit, infilRateAfterCrit))
+plotValues = infil.graphData(finalF, rainfallRate, Ksat,
+                             presHead, thetaSat, thetaInit)
 
 # Plotting the curve of infiltration rate (cm/hr) vs time (hr)
 greenAmptFigure = py.figure(num=1, figsize=(8, 4))
@@ -155,5 +138,5 @@ figureYaxis = "Infiltration rate (cm/hr)"
 greenAmptSubplot.set_title(figureTitle)
 greenAmptSubplot.set_xlabel(figureXaxis)
 greenAmptSubplot.set_ylabel(figureYaxis)
-greenAmptSubplot.plot(timeArray, infilRateArray)
+greenAmptSubplot.plot(plotValues[0, :], plotValues[1, :])
 greenAmptFigure.savefig("Green-Ampt model infiltration rate")
