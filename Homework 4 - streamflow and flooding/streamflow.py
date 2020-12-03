@@ -120,7 +120,7 @@ def QfromP_CN(P, CN):
         direct runoff amount (inches)
 
     """
-    numerator = P - (200/CN) + 2
+    numerator = (P - (200/CN) + 2)**2
     denominator = P + (800/CN) - 8
     Q = numerator/denominator
     return Q
